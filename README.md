@@ -210,4 +210,4 @@ optional arguments:
 ```
 
 ## License
-This project is dual-licensed under [UNLICENSE](LICENSE-2) and [MIT license](LICENSE). 
+This project is licensed under the terms of [MIT license](LICENSE). 
