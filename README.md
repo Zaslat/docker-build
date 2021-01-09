@@ -148,10 +148,16 @@ The script expects that:
 4. Dockerfile follows the practices listed above
 
 ## Script arguments
-The script performs 4 Docker operations - builds the image (`docker build`), creates and runs the container
-(`docker run`), copies build artifacts (`docker cp`) and removes the container (`docker rm`). You can freely control
-all of these operations by adding arguments to the script. These arguments must be enclosed in quotes
-and must be set with the equality operator, e.g. `--docker="--my-arg=my-arg-value"`. Multiple
+The script performs 5 Docker operations: 
+
+1) Builds the image (`docker build`)
+2) Creates and runs the container (`docker run`)
+3) Copies build artifacts (`docker cp`) 
+4) Removes the container (`docker rm`)
+5) Removes old images from previous runs (`docker rmi`)
+
+You can freely control all of these operations by adding arguments to the script. These arguments must be enclosed in 
+quotes and must be set with the equality operator, e.g. `--docker="--my-arg=my-arg-value"`. Multiple
 arguments of the same type can be specified.
 
 **Docker arguments**  
@@ -185,8 +191,16 @@ Result: `docker cp --archive`
 Script arguments:
 
 ```
-usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR [--out-dir OUT_DIR] [--workdir WORKDIR] [--dockerfile DOCKERFILE] [--docker-context DOCKER_CONTEXT] [--docker DOCKER_ARGS] [--docker-build DOCKER_BUILD_ARGS]
-                       [--docker-run DOCKER_RUN_ARGS] [--docker-cp DOCKER_CP_ARGS]
+usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR
+                       [--out-dir OUT_DIR] [--workdir WORKDIR]
+                       [--image-name IMAGE_NAME_PREFIX]
+                       [--num-cached-images NUM_CACHED_IMAGES] [--no-pull]
+                       [--dockerfile DOCKERFILE]
+                       [--docker-context DOCKER_CONTEXT]
+                       [--docker DOCKER_ARGS]
+                       [--docker-build DOCKER_BUILD_ARGS]
+                       [--docker-run DOCKER_RUN_ARGS]
+                       [--docker-cp DOCKER_CP_ARGS]
 
 Build project with Dockerfile.
 
@@ -194,19 +208,35 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
   --dist-dir DIST_DIR   Docker directory which contains build artifacts
-  --out-dir OUT_DIR     Output directory into which copy build artifacts, relative to current working directory (or --workdir if set), defaults to --dist-dir
+  --out-dir OUT_DIR     Output directory into which copy build artifacts,
+                        relative to current working directory (or --workdir if
+                        set), defaults to --dist-dir
   --workdir WORKDIR     working directory where to execute scripts
+  --image-name IMAGE_NAME_PREFIX
+                        prefix used for image name ([a-zA-Z0-9-./] characters
+                        allowed). Defaults to current working directory (or
+                        --workdir if set).
+  --num-cached-images NUM_CACHED_IMAGES
+                        number of the most recent images to keep in cache
+                        (defaults to 5)
+  --no-pull             disables automatic pull of Docker base image
   --dockerfile DOCKERFILE
-                        path to the Dockerfile relative to current working directory (or --workdir if set)
+                        path to the Dockerfile relative to current working
+                        directory (or --workdir if set)
   --docker-context DOCKER_CONTEXT
-                        context of docker build command relative to current working directory (or --workdir if set)
-  --docker DOCKER_ARGS  any argument passed to docker calls, e.g. --docker="--host=127.0.0.1"
+                        context of docker build command relative to current
+                        working directory (or --workdir if set)
+  --docker DOCKER_ARGS  any argument passed to docker calls, e.g. --docker="--
+                        host=127.0.0.1"
   --docker-build DOCKER_BUILD_ARGS
-                        any argument passed to docker build call, e.g. --docker-build="--no-cache"
+                        any argument passed to docker build call, e.g.
+                        --docker-build="--no-cache"
   --docker-run DOCKER_RUN_ARGS
-                        any argument passed to docker run call, e.g. --docker-run="--rm"
+                        any argument passed to docker run call, e.g. --docker-
+                        run="--rm"
   --docker-cp DOCKER_CP_ARGS
-                        any argument passed to docker cp call, e.g. --docker-cp="--archive"
+                        any argument passed to docker cp call, e.g. --docker-
+                        cp="--archive"
 ```
 
 ## License
