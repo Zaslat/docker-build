@@ -13,7 +13,8 @@ There are two basic ways how to install and run this script. Your choices are:
 
 **1. Copy the script into your project (either commit it or download it before each build)**  
 `wget -q -O docker-build.py https://raw.githubusercontent.com/zaslat/docker-build/master/docker-build.py`  
-*Note: to execute the script, call `python docker-build.py ...[arguments]...`*
+*Note: to execute the script, call `python docker-build.py ...[arguments]...`*  
+*Note 2: add `docker-build.py` into your `.dockerignore` to prevent unnecessary rebuilds*
 
 **2. Install the script into your (Linux) system**  
 `sudo wget -q -O /usr/local/bin/docker-build https://raw.githubusercontent.com/zaslat/docker-build/master/docker-build.py`  
@@ -137,13 +138,13 @@ If you are familiar with multi-stage Dockerfiles, feel free to use it!
 See the [JavaScript example](examples/javascript) in examples directory.
 
 To build it, execute this from root of this repository:  
-`python3 docker-build.py --workdir examples/javascript --dockerfile Build.Dockerfile --dist-dir dist`
+`python3 docker-build.py --workdir examples/javascript --file Build.Dockerfile --dist-dir dist`
 
 The build is stored into `dist` folder.
 
 The script expects that:
 1. The project resides in `examples/javascript` directory (`--workdir examples/javascript`)
-1. The Dockerfile is named `Build.Dockerfile` and it sits in the root of your project (`--dockerfile Build.Dockerfile`)
+1. The Dockerfile is named `Build.Dockerfile` and it sits in the root of your project (`--file Build.Dockerfile`)
 3. Build artifacts (output of the build) are saved into `dist` folder (`--dist-dir dist`)
 4. Dockerfile follows the practices listed above
 
@@ -171,8 +172,8 @@ Result: `docker --host 1.2.3.4 build`
 To add an argument to Docker build command (argument placed after the operation specifier - 
 e.g. `docker build <arg-here>`), specify it via `--docker-build` argument. 
 
-Example: `python docker-build.py --docker-build="--build-arg=MY_ARG=MY_VALUE"`    
-Result: `docker build --build-arg MY_ARG=MY_VALUE`
+Example: `python docker-build.py --docker-build="--network=my-fancy-network"`    
+Result: `docker build --network my-fancy-network`
 
 **Docker run arguments**  
 To add an argument to Docker run command (argument placed after the operation specifier - 
@@ -195,7 +196,7 @@ usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR
                        [--out-dir OUT_DIR] [--workdir WORKDIR]
                        [--image-name IMAGE_NAME_PREFIX]
                        [--num-cached-images NUM_CACHED_IMAGES] [--no-pull]
-                       [--dockerfile DOCKERFILE]
+                       [--build-arg BUILD_ARGS] [--file DOCKERFILE]
                        [--docker-context DOCKER_CONTEXT]
                        [--docker DOCKER_ARGS]
                        [--docker-build DOCKER_BUILD_ARGS]
@@ -220,8 +221,10 @@ optional arguments:
                         number of the most recent images to keep in cache
                         (defaults to 5)
   --no-pull             disables automatic pull of Docker base image
-  --dockerfile DOCKERFILE
-                        path to the Dockerfile relative to current working
+  --build-arg BUILD_ARGS
+                        build arg appended to docker build command (multiple
+                        can be specified)
+  --file DOCKERFILE     path to the Dockerfile relative to current working
                         directory (or --workdir if set)
   --docker-context DOCKER_CONTEXT
                         context of docker build command relative to current

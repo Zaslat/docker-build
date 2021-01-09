@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
+import atexit
 import os
 import random
+import re
 import shutil
 import string
 import subprocess
-import atexit
-import re
 from datetime import datetime, timedelta
 
 
@@ -57,6 +57,9 @@ def parse_arg_array(arguments):
     """
     results = []
     for arg in arguments:
+        if len(arg) == 0:
+            continue
+
         results.extend(arg.split("=", 1))
 
     return results
@@ -75,7 +78,7 @@ def is_dir_empty(path):
     return len(os.listdir(path)) == 0
 
 
-def build_image(docker_context, dockerfile, image_name, no_pull, docker_args, docker_build_args):
+def build_image(docker_context, dockerfile, image_name, no_pull, build_args, docker_args, docker_build_args):
     """
     Builds Docker image specified by dockerfile path
 
@@ -85,6 +88,8 @@ def build_image(docker_context, dockerfile, image_name, no_pull, docker_args, do
     :type dockerfile: str
     :param image_name: Docker image tag to label the final image with
     :type image_name: str
+    :param build_args: --build-arg parameters passed to docker build
+    :type build_args: list(str)
     :param no_pull: disables automatic pull of Docker base image
     :type no_pull: bool
     :param docker_args: Arguments passed to docker command (arguments before the "build" directive)
@@ -103,6 +108,10 @@ def build_image(docker_context, dockerfile, image_name, no_pull, docker_args, do
                       "--tag", "%s:latest" % image_name])
     if not no_pull:
         arguments.extend(["--pull"])
+
+    for build_arg in build_args:
+        arguments.extend(["--build-arg", build_arg])
+
     arguments.extend(docker_build_args)
     arguments.extend([docker_context])
 
@@ -312,6 +321,8 @@ def copy_artifacts(container_name, dist_dir, out_dir, docker_args, docker_copy_a
     if os.path.isdir(destination_dir):
         print_colored(Color.BOLD, "Removing old artifacts in %s..." % destination_dir)
         shutil.rmtree(destination_dir)
+    else:
+        os.makedirs(out_dir)
 
     arguments = ["docker"]
     arguments.extend(docker_args)
@@ -324,8 +335,9 @@ def copy_artifacts(container_name, dist_dir, out_dir, docker_args, docker_copy_a
     return subprocess.call(arguments)
 
 
-def main(dist_dir=None, out_dir=None, image_name_prefix=None, num_cached_images=None, no_pull=None, dockerfile=None,
-         docker_context=None, docker_args=None, docker_build_args=None, docker_run_args=None, docker_copy_args=None):
+def main(dist_dir=None, out_dir=None, image_name_prefix=None, num_cached_images=None, no_pull=None, build_args=None,
+         dockerfile=None, docker_context=None, docker_args=None, docker_build_args=None, docker_run_args=None,
+         docker_copy_args=None):
     """
     Builds Docker image, creates Docker container, copies artifacts and removes container
 
@@ -339,6 +351,8 @@ def main(dist_dir=None, out_dir=None, image_name_prefix=None, num_cached_images=
     :type num_cached_images: int
     :param no_pull: disables automatic pull of Docker base image
     :type no_pull: bool
+    :param build_args: --build-arg parameters passed to docker build
+    :type build_args: list(str)
     :param dockerfile: Dockerfile path relative to current working directory
     :type dockerfile: str
     :param docker_context: Docker context relative to current working directory used during docker build
@@ -361,7 +375,8 @@ def main(dist_dir=None, out_dir=None, image_name_prefix=None, num_cached_images=
 
     print_colored(Color.BOLD, "Current working directory is: " + os.getcwd())
 
-    build_return_code = build_image(docker_context, dockerfile, image_name, no_pull, docker_args, docker_build_args)
+    build_return_code = build_image(docker_context, dockerfile, image_name, no_pull, build_args, docker_args,
+                                    docker_build_args)
     if build_return_code != 0:
         print_colored(Color.RED, "ERROR (%d) while building Docker image, exiting." % build_return_code)
         return build_return_code
@@ -406,7 +421,9 @@ if __name__ == "__main__":
                         help="number of the most recent images to keep in cache (defaults to 5)")
     parser.add_argument("--no-pull", action='store_true',
                         help="disables automatic pull of Docker base image")
-    parser.add_argument("--dockerfile", default="Dockerfile",
+    parser.add_argument("--build-arg", dest="build_args", metavar="BUILD_ARGS", default=[], action="append",
+                        help="build arg appended to docker build command (multiple can be specified)")
+    parser.add_argument("--file", dest="dockerfile", default="Dockerfile",
                         help="path to the Dockerfile relative to current working directory (or --workdir if set)")
     parser.add_argument("--docker-context", default=".",
                         help="context of docker build command relative to current working directory "
