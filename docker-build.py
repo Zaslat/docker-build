@@ -1,4 +1,35 @@
 #!/usr/bin/env python
+"""
+This utility helps you with building your project with Docker if your project is not shipped as
+a container (such as frontend web projects or native apps). In order to use it, your Dockerfile
+must be specifically structured. This structure comes from our long-term experience
+with Docker - it utilizes the Docker layer cache which reduces build time and resolves file
+permission issues when building on Linux.
+
+The script is compatible with Python >= 2.7 and Python >= 3.5. It was not tested on other versions.
+
+This file is licensed under the terms of MIT License.
+
+Copyright (c) 2021 Zaslat s.r.o.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 
 import argparse
 import atexit
@@ -407,7 +438,7 @@ def main(dist_dir=None, out_dir=None, image_name_prefix=None, num_cached_images=
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build project with Dockerfile.")
-    parser.add_argument("--version", action="version", version="docker-build version 1.0")
+    parser.add_argument("--version", action="version", version="docker-build version 1.1")
     parser.add_argument("--dist-dir", required=True, help="Docker directory which contains build artifacts")
     parser.add_argument("--out-dir", help="Output directory into which copy build artifacts, "
                                           "relative to current working directory (or --workdir if set), "
@@ -417,7 +448,7 @@ if __name__ == "__main__":
     parser.add_argument("--image-name", dest="image_name_prefix",
                         help="prefix used for image name ([a-zA-Z0-9-./] characters allowed). "
                              "Defaults to current working directory (or --workdir if set).")
-    parser.add_argument("--num-cached-images", default=5, type=int,
+    parser.add_argument("--cache-size", dest="num_cached_images", default=5, type=int,
                         help="number of the most recent images to keep in cache (defaults to 5)")
     parser.add_argument("--no-pull", action='store_true',
                         help="disables automatic pull of Docker base image")

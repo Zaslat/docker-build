@@ -148,7 +148,7 @@ The script expects that:
 3. Build artifacts (output of the build) are saved into `dist` folder (`--dist-dir dist`)
 4. Dockerfile follows the practices listed above
 
-## Script arguments
+## Script workflow
 The script performs 5 Docker operations: 
 
 1) Builds the image (`docker build`)
@@ -157,45 +157,126 @@ The script performs 5 Docker operations:
 4) Removes the container (`docker rm`)
 5) Removes old images from previous runs (`docker rmi`)
 
-You can freely control all of these operations by adding arguments to the script. These arguments must be enclosed in 
-quotes and must be set with the equality operator, e.g. `--docker="--my-arg=my-arg-value"`. Multiple
-arguments of the same type can be specified.
+## Script arguments
+**Help**  
+Parameter: `-h`, `--help`  
+Type: action  
+Description: Show help message and exit.  
+Example: `python docker-build.py --help`
+
+**Version**  
+Parameter: `--version`  
+Type: action  
+Example: `python docker-build.py --version`  
+Description: Show program's version number and exit.  
+
+**Distributable directory**  
+Parameter: `--dist-dir`  
+Type: path  
+Example: `python docker-build.py --dist-dir build/x86`  
+Description: Directory path inside Docker container containing build artifacts (distributable files). This path
+is either absolute path or relative to Docker container working directory (specified by `WORKDIR` in Dockerfile).
+This argument is required.  
+
+**Output directory**  
+Parameter: `--out-dir`  
+Type: path  
+Example: `python docker-build.py --out-dir build`  
+Description: Directory path in your local filesystem where to store build artifacts. If the directory exists,
+it's cleared first. It can be relative to the working directory of the script (can be specified by `--workdir` argument) 
+or absolute path.  
+
+**Working directory**  
+Parameter: `--workdir`  
+Type: path  
+Example: `python docker-build.py --workdir /usr/src/my-app`  
+Description: Specifies the working directory of all commands. All operations are relative to this path.
+
+**Docker image name prefix**  
+Parameter: `--image-name`  
+Type: string    
+Example: `python docker-build.py --image-name my-fancy-app`  
+Description: Specifies the prefix for the Docker image that is created during the build process. Defaults to the 
+basename of working directory (if the working directory is `/usr/src/my-fancy-app` the value is `my-fancy-app`).  
+Each image created during the build process is tagged with this name and 8-character random string 
+(e.g. `my-fancy-app-abcdefgh`). When the build operation finishes, the script automatically tries to remove old images 
+with this prefix (so they don't waste up your disk space). N most recent images (N = `--cache-size` value) are kept 
+in a cache, so the Docker can use them when building other images. Images built in less than 1 hour ago are not 
+counted in this value. See `--cache-size` argument for more info.
+
+**Docker image cache size**  
+Parameter: `--cache-size`  
+Type: number  
+Example: `python docker-build.py --cache-size 10`  
+Description: Specifies how many Docker images are kept in the cache. Images built in less than 1 hour ago are not 
+counted in this value. See `--image-name` argument for more info. 
+
+**No pull**  
+Parameter: `--no-pull`  
+Type: switch  
+Example: `python docker-build.py --no-pull`  
+Description: Disables automatic pull of Docker base image during build. Contrary to native `docker build` behaviour,
+this script automatically tries to pull the latest base image for your image.
+
+**Build argument**  
+Parameter: `--build-arg`  
+Type: string (multiple)  
+Example: `python docker-build.py --build-arg MY_ARG=value --build-arg "MY_SECOND_ARG=other value"`  
+Description: Build argument passed to `docker build` command. Multiple ones cane be specified. 
+Analogous to `docker build --build-arg` command.
+
+**Dockerfile**  
+Parameter: `--file`  
+Type: path
+Example: `python docker-build.py --file Prod.Dockerfile`  
+Description: Path to Dockerfile to be built. It can be relative to the working directory of the script 
+(can be specified by `--workdir` argument) or absolute path. Defaults to `Dockerfile`.
+
+**Docker context path**  
+Parameter: `--docker-context`  
+Type: path  
+Example: `python docker-build.py --docker-context src`  
+Description: Build context for Docker build command. Analogous to `PATH` argument of `docker build` command.
+Defaults to the working directory of the script (can be specified by `--workdir` argument).
 
 **Docker arguments**  
-To add an argument to all Docker commands (argument placed before the operation specifier - 
-e.g. `docker <arg-here> build`), specify it via `--docker` argument. 
-
+Parameter: `--docker`
+Type: string (multiple)  
 Example: `python docker-build.py --docker="--host=1.2.3.4"`  
-Result: `docker --host 1.2.3.4 build`
+Result: `docker --host 1.2.3.4 build`  
+Description: Argument passed to all Docker commands (argument placed before the operation specifier - 
+e.g. `docker <arg-here> build`). Note that you must use equality operator (`=`) between argument name and value.
 
 **Docker build arguments**  
-To add an argument to Docker build command (argument placed after the operation specifier - 
-e.g. `docker build <arg-here>`), specify it via `--docker-build` argument. 
-
+Parameter: `--docker-build`  
+Type: string (multiple)  
 Example: `python docker-build.py --docker-build="--network=my-fancy-network"`    
-Result: `docker build --network my-fancy-network`
+Result: `docker build --network my-fancy-network`  
+Description: Argument passed to Docker build command (argument placed after the operation specifier - 
+e.g. `docker build <arg-here>`). Note that you must use equality operator (`=`) between argument name and value.
 
 **Docker run arguments**  
-To add an argument to Docker run command (argument placed after the operation specifier - 
-e.g. `docker run <arg-here>`), specify it via `--docker-run` argument. 
-
+Parameter: `--docker-run`  
+Type: string (multiple)  
 Example: `python docker-build.py --docker-run="--env=MY_ARG=MY_VALUE"`    
-Result: `docker run --env MY_ARG=MY_VALUE`
+Result: `docker run --env MY_ARG=MY_VALUE`  
+Description: Argument passed to Docker run command (argument placed after the operation specifier - 
+e.g. `docker run <arg-here>`). Note that you must use equality operator (`=`) between argument name and value.
 
 **Docker cp arguments**  
-To add an argument to Docker copy command (argument placed after the operation specifier - 
-e.g. `docker cp <arg-here>`), specify it via `--docker-cp` argument. 
+Parameter: `--docker-cp`  
+Type: string (multiple)
+Example: `python docker-build.py --docker-cp="--archive"`  
+Result: `docker cp --archive`  
+Description: Argument passed to Docker copy command (argument placed after the operation specifier - 
+e.g. `docker cp <arg-here>`). Note that you must use equality operator (`=`) between argument name and value.
 
-Example: `python docker-build.py --docker-cp="--archive"`    
-Result: `docker cp --archive`
-
-Script arguments:
-
+## Script usage
 ```
 usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR
                        [--out-dir OUT_DIR] [--workdir WORKDIR]
                        [--image-name IMAGE_NAME_PREFIX]
-                       [--num-cached-images NUM_CACHED_IMAGES] [--no-pull]
+                       [--cache-size NUM_CACHED_IMAGES] [--no-pull]
                        [--build-arg BUILD_ARGS] [--file DOCKERFILE]
                        [--docker-context DOCKER_CONTEXT]
                        [--docker DOCKER_ARGS]
@@ -217,7 +298,7 @@ optional arguments:
                         prefix used for image name ([a-zA-Z0-9-./] characters
                         allowed). Defaults to current working directory (or
                         --workdir if set).
-  --num-cached-images NUM_CACHED_IMAGES
+  --cache-size NUM_CACHED_IMAGES
                         number of the most recent images to keep in cache
                         (defaults to 5)
   --no-pull             disables automatic pull of Docker base image
