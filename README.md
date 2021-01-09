@@ -184,32 +184,33 @@ Type: path
 Example: `python docker-build.py --out-dir build`  
 Description: Directory path in your local filesystem where to store build artifacts. If the directory exists,
 it's cleared first. It can be relative to the working directory of the script (can be specified by `--workdir` argument) 
-or absolute path.  
+or absolute path. Defaults to the value of `--dist-dir`.
 
 **Working directory**  
 Parameter: `--workdir`  
 Type: path  
 Example: `python docker-build.py --workdir /usr/src/my-app`  
-Description: Specifies the working directory of all commands. All operations are relative to this path.
+Description: Specifies the working directory of all commands. All operations are relative to this path. Defaults to the
+current working directory (when executing the script).
 
 **Docker image name prefix**  
 Parameter: `--image-name`  
 Type: string    
 Example: `python docker-build.py --image-name my-fancy-app`  
-Description: Specifies the prefix for the Docker image that is created during the build process. Defaults to the 
-basename of working directory (if the working directory is `/usr/src/my-fancy-app` the value is `my-fancy-app`).  
+Description: Specifies the prefix for the Docker image that is created during the build process.
 Each image created during the build process is tagged with this name and 8-character random string 
 (e.g. `my-fancy-app-abcdefgh`). When the build operation finishes, the script automatically tries to remove old images 
 with this prefix (so they don't waste up your disk space). N most recent images (N = `--cache-size` value) are kept 
 in a cache, so the Docker can use them when building other images. Images built in less than 1 hour ago are not 
-counted in this value. See `--cache-size` argument for more info.
+counted in this value. See `--cache-size` argument for more info. Defaults to the 
+basename of working directory (if the working directory is `/usr/src/my-fancy-app` the value is `my-fancy-app`).  
 
 **Docker image cache size**  
 Parameter: `--cache-size`  
 Type: number  
 Example: `python docker-build.py --cache-size 10`  
 Description: Specifies how many Docker images are kept in the cache. Images built in less than 1 hour ago are not 
-counted in this value. See `--image-name` argument for more info. 
+counted in this value. See `--image-name` argument for more info. Defaults to `5`.
 
 **No pull**  
 Parameter: `--no-pull`  
