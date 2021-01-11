@@ -216,8 +216,14 @@ counted in this value. See `--image-name` argument for more info. Defaults to `5
 Parameter: `--no-pull`  
 Type: switch  
 Example: `python docker-build.py --no-pull`  
-Description: Disables automatic pull of Docker base image during build. Contrary to native `docker build` behaviour,
+Description: Disables automatic pull of Docker base image during build. Contrary to native `docker build` behavior,
 this script automatically tries to pull the latest base image for your image.
+
+**No cache**  
+Parameter: `--no-cache`  
+Type: switch  
+Example: `python docker-build.py --no-cache`  
+Description: Disables the cache when building the image, analogous to `docker build --no-cache`.
 
 **Build argument**  
 Parameter: `--build-arg`  
@@ -274,16 +280,8 @@ e.g. `docker cp <arg-here>`). Note that you must use equality operator (`=`) bet
 
 ## Script usage
 ```
-usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR
-                       [--out-dir OUT_DIR] [--workdir WORKDIR]
-                       [--image-name IMAGE_NAME_PREFIX]
-                       [--cache-size NUM_CACHED_IMAGES] [--no-pull]
-                       [--build-arg BUILD_ARGS] [--file DOCKERFILE]
-                       [--docker-context DOCKER_CONTEXT]
-                       [--docker DOCKER_ARGS]
-                       [--docker-build DOCKER_BUILD_ARGS]
-                       [--docker-run DOCKER_RUN_ARGS]
-                       [--docker-cp DOCKER_CP_ARGS]
+usage: docker-build.py [-h] [--version] --dist-dir DIST_DIR [--out-dir OUT_DIR] [--workdir WORKDIR] [--image-name IMAGE_NAME_PREFIX] [--cache-size NUM_CACHED_IMAGES] [--no-pull] [--no-cache] [--build-arg BUILD_ARGS]
+                       [--file DOCKERFILE] [--docker-context DOCKER_CONTEXT] [--docker DOCKER_ARGS] [--docker-build DOCKER_BUILD_ARGS] [--docker-run DOCKER_RUN_ARGS] [--docker-cp DOCKER_CP_ARGS]
 
 Build project with Dockerfile.
 
@@ -291,37 +289,26 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
   --dist-dir DIST_DIR   Docker directory which contains build artifacts
-  --out-dir OUT_DIR     Output directory into which copy build artifacts,
-                        relative to current working directory (or --workdir if
-                        set), defaults to --dist-dir
+  --out-dir OUT_DIR     Output directory into which copy build artifacts, relative to current working directory (or --workdir if set), defaults to --dist-dir
   --workdir WORKDIR     working directory where to execute scripts
   --image-name IMAGE_NAME_PREFIX
-                        prefix used for image name ([a-zA-Z0-9-./] characters
-                        allowed). Defaults to current working directory (or
-                        --workdir if set).
+                        prefix used for image name ([a-zA-Z0-9-./] characters allowed). Defaults to current working directory (or --workdir if set).
   --cache-size NUM_CACHED_IMAGES
-                        number of the most recent images to keep in cache
-                        (defaults to 5)
+                        number of the most recent images to keep in cache (defaults to 5)
   --no-pull             disables automatic pull of Docker base image
+  --no-cache            do not use cache when building the image, analogous to docker build --no-cache
   --build-arg BUILD_ARGS
-                        build arg appended to docker build command (multiple
-                        can be specified)
-  --file DOCKERFILE     path to the Dockerfile relative to current working
-                        directory (or --workdir if set)
+                        build arg appended to docker build command (multiple can be specified)
+  --file DOCKERFILE     path to the Dockerfile relative to current working directory (or --workdir if set)
   --docker-context DOCKER_CONTEXT
-                        context of docker build command relative to current
-                        working directory (or --workdir if set)
-  --docker DOCKER_ARGS  any argument passed to docker calls, e.g. --docker="--
-                        host=127.0.0.1"
+                        context of docker build command relative to current working directory (or --workdir if set)
+  --docker DOCKER_ARGS  any argument passed to docker calls, e.g. --docker="--host=127.0.0.1"
   --docker-build DOCKER_BUILD_ARGS
-                        any argument passed to docker build call, e.g.
-                        --docker-build="--no-cache"
+                        any argument passed to docker build call, e.g. --docker-build="--no-cache"
   --docker-run DOCKER_RUN_ARGS
-                        any argument passed to docker run call, e.g. --docker-
-                        run="--rm"
+                        any argument passed to docker run call, e.g. --docker-run="--rm"
   --docker-cp DOCKER_CP_ARGS
-                        any argument passed to docker cp call, e.g. --docker-
-                        cp="--archive"
+                        any argument passed to docker cp call, e.g. --docker-cp="--archive"
 ```
 
 ## License

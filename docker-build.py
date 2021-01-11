@@ -452,6 +452,8 @@ if __name__ == "__main__":
                         help="number of the most recent images to keep in cache (defaults to 5)")
     parser.add_argument("--no-pull", action='store_true',
                         help="disables automatic pull of Docker base image")
+    parser.add_argument("--no-cache", action='store_true',
+                        help="do not use cache when building the image, analogous to docker build --no-cache")
     parser.add_argument("--build-arg", dest="build_args", metavar="BUILD_ARGS", default=[], action="append",
                         help="build arg appended to docker build command (multiple can be specified)")
     parser.add_argument("--file", dest="dockerfile", default="Dockerfile",
@@ -482,6 +484,9 @@ if __name__ == "__main__":
 
     if not args.get("image_name_prefix"):
         args["image_name_prefix"] = os.path.basename(os.getcwd())
+
+    if args.get("no_cache"):
+        args["docker_build_args"].extend(["--no-cache"])
 
     return_code = main(**args)
     exit(return_code)
