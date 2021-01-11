@@ -304,7 +304,7 @@ optional arguments:
                         context of docker build command relative to current working directory (or --workdir if set)
   --docker DOCKER_ARGS  any argument passed to docker calls, e.g. --docker="--host=127.0.0.1"
   --docker-build DOCKER_BUILD_ARGS
-                        any argument passed to docker build call, e.g. --docker-build="--no-cache"
+                        any argument passed to docker build call, e.g. --docker-build="--quiet"
   --docker-run DOCKER_RUN_ARGS
                         any argument passed to docker run call, e.g. --docker-run="--rm"
   --docker-cp DOCKER_CP_ARGS

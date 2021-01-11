@@ -465,7 +465,7 @@ if __name__ == "__main__":
                         help="any argument passed to docker calls, e.g. --docker=\"--host=127.0.0.1\"")
     parser.add_argument("--docker-build", dest="docker_build_args", metavar="DOCKER_BUILD_ARGS", default=[],
                         action="append",
-                        help="any argument passed to docker build call, e.g. --docker-build=\"--no-cache\"")
+                        help="any argument passed to docker build call, e.g. --docker-build=\"--quiet\"")
     parser.add_argument("--docker-run", dest="docker_run_args", metavar="DOCKER_RUN_ARGS", default=[], action="append",
                         help="any argument passed to docker run call, e.g. --docker-run=\"--rm\"")
     parser.add_argument("--docker-cp", dest="docker_copy_args", metavar="DOCKER_CP_ARGS", default=[], action="append",
