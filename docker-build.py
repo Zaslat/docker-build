@@ -487,6 +487,7 @@ if __name__ == "__main__":
 
     if args.get("no_cache"):
         args["docker_build_args"].extend(["--no-cache"])
+    del args["no_cache"]
 
     return_code = main(**args)
     exit(return_code)
